@@ -7,5 +7,6 @@ RUN npm run build -- --configuration production
 
 FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-# remplace NOM-PROJET par le nom dans angular.json (dossier dist/)
-COPY --from=build /app/dist/zt-hub /usr/share/nginx/html
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=build /app/dist/zt-hub /tmp/dist
+RUN if [ -d /tmp/dist/browser ]; then cp -r /tmp/dist/browser/. /usr/share/nginx/html/; else cp -r /tmp/dist/. /usr/share/nginx/html/; fi

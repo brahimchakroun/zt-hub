@@ -1,0 +1,82 @@
+@if (errorMessage()) {
+<div class="error-box" role="alert" aria-live="assertive">
+    <i class="pi pi-exclamation-circle"></i>
+    <span>{{ errorMessage() }}</span>
+</div>
+}
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form" novalidate>
+
+    <!-- EMAIL -->
+    <div class="field">
+        <label for="username" class="field-label">ADRESSE E-MAIL</label>
+        <div class="input-wrap" [class.focused]="usernameFocused" [class.invalid]="form.get('username')?.invalid && form.get('username')?.touched">
+            <input
+                    pInputText
+                    id="username"
+                    type="email"
+                    formControlName="username"
+                    placeholder="Entrez votre adresse e-mail"
+                    autocomplete="email"
+                    class="field-input"
+                    (focus)="usernameFocused = true"
+                    (blur)="usernameFocused = false"
+            />
+        </div>
+        @if (form.get('username')?.invalid && form.get('username')?.touched) {
+        <small class="field-error">
+            @if (form.get('username')?.errors?.['required']) {
+            L'adresse e-mail est obligatoire
+            } @else if (form.get('username')?.errors?.['email']) {
+            Format d'e-mail invalide
+            } @else if (form.get('username')?.errors?.['zitounaEmail']) {
+            Seules les adresses @zitounatakaful.com sont autorisées
+            }
+        </small>
+        }
+    </div>
+
+    <!-- PASSWORD -->
+    <div class="field">
+        <div class="field-row">
+            <label for="password" class="field-label">MOT DE PASSE</label>
+            <a href="#" class="forgot-link" (click)="onForgotPassword($event)">
+                Mot de passe oublié ?
+            </a>
+        </div>
+
+        <div class="input-wrap pw-wrap" [class.focused]="passwordFocused" [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+            <i class="pi pi-lock field-icon"></i>
+            <p-password
+                    inputId="password"
+                    formControlName="password"
+                    [feedback]="false"
+                    [toggleMask]="true"
+                    placeholder="••••••••"
+                    styleClass="pw-style"
+                    inputStyleClass="field-input pw-input"
+                    (onFocus)="passwordFocused = true"
+                    (onBlur)="passwordFocused = false"
+            />
+        </div>
+        @if (form.get('password')?.invalid && form.get('password')?.touched) {
+        <small class="field-error">Le mot de passe est obligatoire</small>
+        }
+    </div>
+
+    <!-- BOUTON -->
+    <button
+            type="submit"
+            class="submit-btn"
+            [class.is-loading]="loading()"
+            [disabled]="loading()">
+        @if (loading()) {
+        <span>
+        <i class="pi pi-spin pi-spinner"></i>
+        Connexion...
+      </span>
+        } @else {
+        <span>Se Connecter</span>
+        }
+    </button>
+</form>

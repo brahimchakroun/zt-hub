@@ -1,0 +1,277 @@
+<div class="mothmer">
+
+  <!-- ============================================================ -->
+  <!-- HEADER -->
+  <!-- ============================================================ -->
+  <header class="mothmer__header no-print">
+    <div class="mothmer__title-block">
+      <div class="mothmer__icon">
+        <i class="pi pi-chart-line"></i>
+      </div>
+      <div>
+        <h1 class="mothmer__title">Calculateur EC — MOTHMER</h1>
+        <p class="mothmer__subtitle">Section Vie — Calcul de l'échéance contractuelle</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- STEPS -->
+  <!-- ============================================================ -->
+  <div class="steps no-print">
+    <div *ngFor="let s of steps"
+         class="step"
+         [class.step--done]="s.state === 'done'"
+         [class.step--active]="s.state === 'active'">
+      <span class="step__num">{{ s.num }}</span>
+      <span>{{ s.label }}</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- STATUS -->
+  <!-- ============================================================ -->
+  <div *ngIf="status"
+       class="status no-print"
+       [ngClass]="'status--' + status.type">
+    {{ status.text }}
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PROGRESS -->
+  <!-- ============================================================ -->
+  <div *ngIf="showProgress" class="progress no-print">
+    <div class="progress__bar" [style.width.%]="progress"></div>
+    <span class="progress__label">{{ progress }}%</span>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- CARTES : UPLOAD + TAUX -->
+  <!-- ============================================================ -->
+  <div class="mothmer__grid no-print">
+
+    <!-- CARTE UPLOAD -->
+    <div class="card">
+      <div class="card__title">
+        <i class="pi pi-upload"></i>
+        <span>Chargement du fichier</span>
+      </div>
+      <div class="card__body">
+
+        <div class="upload">
+          <input #fileInput
+                 type="file"
+                 accept=".xlsx,.xls,.csv"
+                 (change)="onFileSelected($event)"
+                 style="display:none" />
+
+          <button type="button" class="btn btn--primary" (click)="fileInput.click()">
+            <i class="pi pi-file-excel"></i>
+            <span>Charger les données</span>
+          </button>
+
+          <button type="button"
+                  class="btn btn--ghost btn--danger"
+                  (click)="clearData()"
+                  [disabled]="!hasData">
+            <i class="pi pi-trash"></i>
+            <span>Effacer</span>
+          </button>
+
+          <span class="upload__hint">Fichier .xlsx, .xls, .csv</span>
+        </div>
+
+        <div class="info__row">
+          <div class="info__item">
+            <span class="info__label">N° Contrat</span>
+            <span class="info__value">{{ contrat || '—' }}</span>
+          </div>
+          <div class="info__item">
+            <span class="info__label">Code Agence</span>
+            <span class="info__value">{{ agence || '—' }}</span>
+          </div>
+          <div class="info__item">
+            <span class="info__label">Nb quittances</span>
+            <span class="info__value">{{ rawData.length }}</span>
+          </div>
+          <div class="info__item" *ngIf="rawData.length > 0">
+            <span class="info__label">Dernière date</span>
+            <span class="info__value info__value--warn">
+              {{ formatDate(rawData[rawData.length - 1].dateCalcul) }}
+            </span>
+          </div>
+          <div class="info__item" *ngIf="decisionMade">
+            <span class="info__label">Choix</span>
+            <span class="info__value">
+              <ng-container [ngSwitch]="choiceType">
+                <span *ngSwitchCase="'today'">Aujourd'hui</span>
+                <span *ngSwitchCase="'manual'">Date manuelle</span>
+                <span *ngSwitchDefault>Aucune date</span>
+              </ng-container>
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CARTE TAUX PB -->
+    <div class="card">
+      <div class="card__title">
+        <i class="pi pi-percentage"></i>
+        <span>Taux PB par année</span>
+      </div>
+      <div class="card__body">
+        <div class="taux">
+          <div class="taux__item" *ngFor="let t of tauxEntries">
+            <span class="taux__year">{{ t.annee }}</span>
+            <span class="taux__value">{{ (t.taux * 100).toFixed(2) }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- CARTE DÉCISION (choix de date) -->
+  <!-- ============================================================ -->
+  <div *ngIf="canChooseDate" class="card card--decision no-print">
+    <div class="card__title card__title--decision">
+      <i class="pi pi-calendar-plus"></i>
+      <span>Choix de la date avant calcul</span>
+    </div>
+    <div class="card__body">
+
+      <div class="decision">
+
+        <button type="button" class="btn btn--secondary" (click)="chooseToday()">
+          <i class="pi pi-calendar"></i>
+          <span>Ajouter {{ todayLabel }}</span>
+        </button>
+
+        <div class="decision__manual">
+          <label class="decision__label">📝 Saisir une date :</label>
+          <input type="text"
+                 class="decision__input"
+                 placeholder="jj/mm/aaaa"
+                 maxlength="10"
+                 [(ngModel)]="manualDateInput"
+                 (ngModelChange)="onManualDateInput()" />
+          <button type="button"
+                  class="btn btn--primary"
+                  (click)="chooseManualDate()">
+            <i class="pi pi-check"></i>
+            <span>Valider</span>
+          </button>
+        </div>
+
+        <button type="button" class="btn btn--ghost" (click)="skipDates()">
+          <i class="pi pi-forward"></i>
+          <span>Passer (aucune date)</span>
+        </button>
+
+      </div>
+
+      <div class="decision__hint" [class.decision__hint--error]="manualDateError">
+        {{ manualDateError || 'La date doit être > dernière date et ≤ aujourd\'hui' }}
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- BOUTONS DE CALCUL -->
+  <!-- ============================================================ -->
+  <div class="calc-buttons no-print">
+    <button type="button"
+            class="btn btn--primary"
+            (click)="executeEtape1_4()"
+            [disabled]="!canExecute">
+      <i class="pi pi-list"></i>
+      <span>Étape 1-4 : Préparation</span>
+    </button>
+
+    <button type="button"
+            class="btn btn--secondary"
+            (click)="calculateECAvecPB()"
+            [disabled]="!canCalcECPB">
+      <i class="pi pi-chart-line"></i>
+      <span>Calcul EC avec PB</span>
+    </button>
+
+    <button type="button"
+            class="btn btn--purple"
+            (click)="calculateECSansPB()"
+            [disabled]="!canCalcECSansPB">
+      <i class="pi pi-chart-bar"></i>
+      <span>Calcul EC sans PB</span>
+    </button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TABLEAU -->
+  <!-- ============================================================ -->
+  <div class="table-wrap">
+    <table class="calc-table">
+      <thead>
+        <tr>
+          <th>N° Quittance</th>
+          <th>Date Effet</th>
+          <th>Date Calcul</th>
+          <th>Période Courue</th>
+          <th>Contribution Encaissée</th>
+          <th>Chargement Acquisition</th>
+          <th>Contribution Nette</th>
+          <th>EC avec PB</th>
+          <th>EC sans PB</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of data; trackBy: trackByIndex"
+            [ngClass]="rowClass(row)">
+          <td class="col-quittance">{{ row.numQuittance || '' }}</td>
+          <td>{{ isSpecialRow(row) ? '' : formatDate(row.dateEffet) }}</td>
+          <td>{{ formatDate(row.dateCalcul) }}</td>
+          <td class="col-num">{{ row.periodeCourue ?? '' }}</td>
+          <td class="col-num">{{ isSpecialRow(row) ? '' : fmt(row.contribution) }}</td>
+          <td class="col-num">{{ isSpecialRow(row) ? '' : fmt(row.chargementAcquisition) }}</td>
+          <td class="col-num">{{ isSpecialRow(row) ? '' : fmt(row.contributionNette) }}</td>
+          <td class="col-num">{{ fmt(row.ecAvecPB) }}</td>
+          <td class="col-num">{{ fmt(row.ecSansPB) }}</td>
+        </tr>
+        <tr *ngIf="data.length === 0">
+          <td colspan="9" class="empty-msg">
+            <i class="pi pi-inbox" style="font-size:2rem;display:block;margin-bottom:8px;opacity:.4"></i>
+            Aucune donnée chargée
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- FOOTER STATS -->
+  <!-- ============================================================ -->
+  <footer class="footer no-print">
+    <div class="footer__stats">
+      <div class="stat">
+        <span class="stat__label">Total encaissé</span>
+        <span class="stat__value">{{ fmt(totalEncaisse) }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat__label">Total net</span>
+        <span class="stat__value">{{ fmt(totalNet) }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat__label">EC avec PB final</span>
+        <span class="stat__value stat__value--ok">{{ fmt(finalECPB) }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat__label">EC sans PB final</span>
+        <span class="stat__value stat__value--ok">{{ fmt(finalECSansPB) }}</span>
+      </div>
+    </div>
+  </footer>
+
+</div>

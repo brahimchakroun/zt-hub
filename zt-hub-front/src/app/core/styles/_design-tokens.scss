@@ -1,0 +1,194 @@
+// ==========================================================================
+// DESIGN TOKENS — Zitouna Takaful (Mobile-First)
+// À importer dans styles.scss via @use './app/core/styles/design-tokens' as *;
+// ==========================================================================
+
+// --------------------------------------------------------------------------
+// Palette — inspirée de l'identité Zitouna (vert + doré) + neutres chauds
+// --------------------------------------------------------------------------
+$color-primary-50:  #f4f8ef;
+$color-primary-100: #e3edd8;
+$color-primary-200: #c7dbaf;
+$color-primary-300: #a4c281;
+$color-primary-400: #86ad64;
+$color-primary-500: #7da65d; // couleur de marque principale
+$color-primary-600: #6b9450;
+$color-primary-700: #557a40;
+$color-primary-800: #446134;
+$color-primary-900: #374f2b;
+
+$color-accent-50:  #fbf6e6;
+$color-accent-100: #f5ead0;
+$color-accent-200: #ead5a1;
+$color-accent-300: #dfc072;
+$color-accent-400: #d4ab47;
+$color-accent-500: #c9a840; // doré Zitouna
+$color-accent-600: #b49435;
+
+$color-surface-0:   #ffffff;
+$color-surface-50:  #fafaf8;
+$color-surface-100: #f3f1ec;
+$color-surface-200: #e6e2d8;
+$color-surface-300: #d1cbbf;
+
+$color-text-900: #1a1a1a;
+$color-text-700: #3a3a3a;
+$color-text-500: #6b6b6b;
+$color-text-400: #8c8c8c;
+$color-text-300: #a6a6a6;
+
+$color-success: #16a34a;
+$color-success-bg: #f0fdf4;
+$color-success-border: #bbf7d0;
+
+$color-warning: #d97706;
+$color-warning-bg: #fffbeb;
+$color-warning-border: #fde68a;
+
+$color-danger:  #dc2626;
+$color-danger-bg:   #fef2f2;
+$color-danger-border:#fecaca;
+
+$color-info:    #2563eb;
+$color-info-bg:     #eff6ff;
+$color-info-border: #bfdbfe;
+
+// --------------------------------------------------------------------------
+// Espacement — échelle 4px (mobile first, cohérente d'un bout à l'autre)
+// --------------------------------------------------------------------------
+$space-0: 0;
+$space-1: 0.25rem;   // 4px
+$space-2: 0.5rem;    // 8px
+$space-3: 0.75rem;   // 12px
+$space-4: 1rem;      // 16px
+$space-5: 1.5rem;    // 24px
+$space-6: 2rem;      // 32px
+$space-7: 2.5rem;    // 40px
+$space-8: 3rem;      // 48px
+
+// --------------------------------------------------------------------------
+// Rayon de bord (tous les composants utilisent ces tokens)
+// --------------------------------------------------------------------------
+$radius-sm: 6px;
+$radius-md: 10px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+$radius-full: 9999px;
+
+// --------------------------------------------------------------------------
+// Ombres — layers légers (clean & modern)
+// --------------------------------------------------------------------------
+$shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+$shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+$shadow-md: 0 4px 10px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.04);
+$shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.08), 0 4px 10px rgba(15, 23, 42, 0.04);
+
+// --------------------------------------------------------------------------
+// Typographie
+// --------------------------------------------------------------------------
+$font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+$fs-xs: 0.75rem;   // 12px
+$fs-sm: 0.85rem;   // 13.6px
+$fs-base: 0.95rem; // 15.2px (mobile) → 1rem sur desktop
+$fs-md: 1.05rem;
+$fs-lg: 1.25rem;
+$fs-xl: 1.5rem;
+$fs-2xl: 1.875rem;
+
+$lh-tight: 1.2;
+$lh-snug:  1.4;
+$lh-normal:1.55;
+
+// --------------------------------------------------------------------------
+// Breakpoints MOBILE-FIRST
+// Usage : @include bp(sm) { /* styles appliqués ≥ 640px */ }
+// --------------------------------------------------------------------------
+$breakpoints: (
+  xs: 0,
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+);
+
+@mixin bp($name) {
+  $value: map-get($breakpoints, $name);
+  @if $value == null {
+    @error "Breakpoint `#{$name}` introuvable. Choisir parmi : xs, sm, md, lg, xl.";
+  }
+  @media (min-width: $value) { @content; }
+}
+
+@mixin bp-max($name) {
+  $value: map-get($breakpoints, $name);
+  @media (max-width: #{$value - 1px}) { @content; }
+}
+
+// --------------------------------------------------------------------------
+// Mixins layout
+// --------------------------------------------------------------------------
+@mixin card-surface {
+  background: $color-surface-0;
+  border: 1px solid $color-surface-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+}
+
+@mixin focus-ring($color: $color-primary-500, $alpha: 0.18) {
+  outline: none;
+  border-color: $color;
+  box-shadow: 0 0 0 3px rgba($color, $alpha);
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
+
+// --------------------------------------------------------------------------
+// Conteneur responsive (Mobile-First)
+// --------------------------------------------------------------------------
+@mixin container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: $space-4;
+  max-width: 100%;
+  @include bp(sm) { max-width: 640px; }
+  @include bp(md) { max-width: 768px; padding-inline: $space-5; }
+  @include bp(lg) { max-width: 1024px; }
+  @include bp(xl) { max-width: 1200px; }
+}
+
+// --------------------------------------------------------------------------
+// Utilities — 1) mixins à @include dans un composant  2) classes globales
+// --------------------------------------------------------------------------
+// Mixins à @include (utilisés dans les composants : @include u-between;)
+@mixin u-row { display: flex; gap: $space-3; align-items: center; }
+@mixin u-row-wrap { display: flex; gap: $space-3; flex-wrap: wrap; }
+@mixin u-between  { display: flex; align-items: center; justify-content: space-between; gap: $space-3; }
+@mixin u-center   { display: grid; place-items: center; }
+@mixin u-text-muted { color: $color-text-400; }
+
+// Classes globales — appliquées dans styles.scss via @include utilities;
+@mixin utilities {
+  .u-container { @include container; }
+  .u-stack-xs { display: flex; flex-direction: column; gap: $space-2; }
+  .u-stack-sm { display: flex; flex-direction: column; gap: $space-3; }
+  .u-stack    { display: flex; flex-direction: column; gap: $space-4; }
+  .u-row      { @include u-row; }
+  .u-row-wrap { @include u-row-wrap; }
+  .u-between  { @include u-between; }
+  .u-center   { @include u-center; }
+  .u-hidden-sm { @include bp-max(sm) { display: none !important; } }
+  .u-visible-sm-only { @include bp(sm) { display: none !important; } }
+  .u-text-muted { @include u-text-muted; }
+  .u-text-success { color: $color-success; }
+  .u-text-danger  { color: $color-danger; }
+  .u-w-full { width: 100%; }
+  .u-clickable { cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .u-focusable { -webkit-tap-highlight-color: transparent; }
+}

@@ -1,0 +1,16 @@
+<div class="profile-content">
+  <div class="profile-header">
+    <p-avatar [label]="(user()?.firstName?.[0] || '') + (user()?.lastName?.[0] || '')" size="xlarge" shape="circle" class="profile-avatar" />
+    <div class="profile-info">
+      <h2 class="profile-name">{{ user()?.firstName }} {{ user()?.lastName }}</h2>
+      <p class="profile-email">{{ user()?.email }}</p>
+      <p class="profile-roles">Rôles : {{ user()?.roles?.join(', ') }}</p>
+    </div>
+  </div>
+  <div class="profile-actions">
+    <a routerLink="auth/change-password" class="action-btn">
+      <i class="pi pi-key"></i>
+      Changer le mot de passe
+    </a>
+  </div>
+</div>

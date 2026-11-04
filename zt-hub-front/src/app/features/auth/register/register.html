@@ -1,0 +1,47 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+  <div class="field-row">
+    <div class="field">
+      <label class="field-label">Prénom</label>
+      <div class="input-wrap">
+        <i class="pi pi-user field-icon"></i>
+        <input pInputText formControlName="firstName" class="field-input" placeholder="Prénom" />
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Nom</label>
+      <div class="input-wrap">
+        <i class="pi pi-user field-icon"></i>
+        <input pInputText formControlName="lastName" class="field-input" placeholder="Nom" />
+      </div>
+    </div>
+  </div>
+  <div class="field">
+    <label class="field-label">Identifiant</label>
+    <div class="input-wrap">
+      <i class="pi pi-id-card field-icon"></i>
+      <input pInputText formControlName="username" class="field-input" placeholder="Entrez votre identifiant" />
+    </div>
+  </div>
+  <div class="field">
+    <label class="field-label">Email</label>
+    <div class="input-wrap">
+      <i class="pi pi-envelope field-icon"></i>
+      <input pInputText type="email" formControlName="email" class="field-input" placeholder="Entrez votre adresse e-mail" />
+    </div>
+  </div>
+  <div class="field">
+    <label class="field-label">Mot de passe</label>
+    <div class="input-wrap pw-wrap">
+      <i class="pi pi-lock field-icon"></i>
+      <p-password formControlName="password" [toggleMask]="true" styleClass="pw-style" inputStyleClass="field-input pw-input" placeholder="••••••••" />
+    </div>
+  </div>
+  <button type="submit" class="submit-btn" [disabled]="loading">
+    @if (loading) {
+      <span><i class="pi pi-spin pi-spinner"></i> Inscription...</span>
+    } @else {
+      <span>S'inscrire</span>
+    }
+  </button>
+</form>
+<p class="footer-link">Déjà un compte ? <a routerLink="/auth/login">Se connecter</a></p>

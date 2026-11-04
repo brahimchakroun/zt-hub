@@ -1,0 +1,224 @@
+<div class="decharge">
+
+    <p-toast position="top-right" [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0', top: '0' } }" />
+
+    <section class="decharge__card" role="region" aria-labelledby="decharge-title">
+
+        <!-- ================= SCAN ================= -->
+        @if (step() === 'scan') {
+            <header class="panel-header">
+                <div class="panel-header__icon" aria-hidden="true">
+                    <i class="pi pi-qrcode"></i>
+                </div>
+                <h1 id="decharge-title" class="panel-header__title">Décharge bordereaux</h1>
+                <p class="panel-header__subtitle">
+                    Scanner un QR Code pour enregistrer une décharge
+                </p>
+            </header>
+
+            <div class="qr-wrap" [class.qr-wrap--loading]="scannerLoading()">
+                @if (scannerLoading()) {
+                    <div class="qr-skeleton" aria-hidden="true">
+                        <div class="skeleton skeleton--frame"></div>
+                        <div class="skeleton skeleton--hint"></div>
+                    </div>
+                }
+                <div
+                    #qrReader
+                    id="qr-reader"
+                    class="qr-reader"
+                    [class.qr-reader--hidden]="scannerLoading()"
+                    aria-label="Lecteur QR Code">
+                </div>
+            </div>
+
+            <div class="divider" role="separator" aria-label="ou">
+                <span>ou</span>
+            </div>
+
+            <div class="manual">
+                <p class="manual__label" id="manual-label">
+                    <i class="pi pi-keyboard"></i>
+                    Saisie manuelle
+                </p>
+
+                <form class="manual__row" (submit)="onManualSubmit(manualValue); $event.preventDefault()">
+                    <label for="manual-input" class="sr-only">Numéro de bordereau</label>
+                    <input
+                        #manualInput
+                        id="manual-input"
+                        type="text"
+                        class="manual__input"
+                        name="manualValue"
+                        [ngModel]="manualValue"
+                        (ngModelChange)="manualValue = $event"
+                        (keydown.enter)="onManualKeypress($event)"
+                        placeholder="N° bordereau (ex: BORD-12345)"
+                        autocomplete="off"
+                        aria-describedby="manual-label"
+                    />
+                    <p-button
+                        type="submit"
+                        label="Valider"
+                        icon="pi pi-check"
+                        styleClass="manual__btn"
+                        [disabled]="!manualValue.trim()"
+                        ariaLabel="Valider le numéro de bordereau saisi manuellement">
+                    </p-button>
+                </form>
+            </div>
+        }
+
+        <!-- ================= CONFIRMATION ================= -->
+        @if (step() === 'confirm') {
+            <header class="panel-header">
+                <div class="panel-header__icon panel-header__icon--info" aria-hidden="true">
+                    <i class="pi pi-file-check"></i>
+                </div>
+                <h1 id="decharge-title" class="panel-header__title">Confirmer la décharge</h1>
+                <p class="panel-header__subtitle">Vérifiez les informations détectées</p>
+            </header>
+
+            <dl class="summary" aria-label="Informations du bordereau">
+                <div class="summary__row summary__row--heading">
+                    <dt>Numéro bordereau</dt>
+                    <dd>{{ numeroBordereau() }}</dd>
+                </div>
+                <div class="summary__row summary__row--meta">
+                    <dt>Statut</dt>
+                    <dd class="pill pill--success">
+                        <i class="pi pi-check"></i>
+                        QR détecté avec succès
+                    </dd>
+                </div>
+                @if (rawContent() !== numeroBordereau()) {
+                    <div class="summary__row summary__row--raw">
+                        <dt>Contenu brut</dt>
+                        <dd class="raw">{{ rawContent() }}</dd>
+                    </div>
+                }
+            </dl>
+
+            <div class="actions actions--split">
+                <p-button
+                    type="button"
+                    label="Annuler"
+                    severity="secondary"
+                    icon="pi pi-times"
+                    styleClass="actions__btn actions__btn--ghost"
+                    (click)="cancelConfirm()"
+                    ariaLabel="Annuler et revenir à l'étape de scan">
+                </p-button>
+
+                <p-button
+                    type="button"
+                    label="Valider la décharge"
+                    icon="pi pi-check"
+                    styleClass="actions__btn actions__btn--primary"
+                    (click)="confirmDecharge()"
+                    ariaLabel="Confirmer et soumettre la décharge">
+                </p-button>
+            </div>
+        }
+
+        <!-- ================= LOADING ================= -->
+        @if (step() === 'loading') {
+            <div class="loading" role="status" aria-live="polite" aria-busy="true">
+                <p-progressSpinner
+                    class="loading__spinner"
+                    strokeWidth="4"
+                    styleClass="spinner--primary"
+                    ariaLabel="Traitement en cours">
+                </p-progressSpinner>
+                <h2 class="loading__title">Traitement en cours</h2>
+                <p class="loading__text">Enregistrement de la décharge…</p>
+
+                <div class="loading__progress" aria-hidden="true">
+                    <span class="loading__bar"></span>
+                </div>
+            </div>
+        }
+
+        <!-- ================= SUCCESS ================= -->
+        @if (step() === 'success' && successData()) {
+            <div class="result result--success" role="status">
+                <div class="result__icon result__icon--success" aria-hidden="true">
+                    <i class="pi pi-check-circle"></i>
+                </div>
+                <h1 id="decharge-title" class="panel-header__title">Décharge effectuée</h1>
+                <p class="panel-header__subtitle">Le bordereau a été soumis au RPA Gateway.</p>
+
+                <dl class="summary summary--success">
+                    <div class="summary__row">
+                        <dt>Bordereau traité</dt>
+                        <dd class="mono">{{ successData()?.numeroBordereau }}</dd>
+                    </div>
+                    @if (successData()?.reference) {
+                        <div class="summary__row">
+                            <dt>Référence</dt>
+                            <dd class="mono">{{ successData()?.reference }}</dd>
+                        </div>
+                    }
+                    @if (successData()?.rpaRequestId) {
+                        <div class="summary__row">
+                            <dt>ID requête RPA</dt>
+                            <dd class="mono mono--sm">{{ successData()?.rpaRequestId }}</dd>
+                        </div>
+                    }
+                    @if (successData()?.processedAt) {
+                        <div class="summary__row">
+                            <dt>Date</dt>
+                            <dd>{{ successData()?.processedAt | date: 'dd/MM/yyyy HH:mm' }}</dd>
+                        </div>
+                    }
+                </dl>
+
+                <div class="actions">
+                    <p-button
+                        type="button"
+                        label="Scanner le suivant"
+                        icon="pi pi-qrcode"
+                        styleClass="actions__btn actions__btn--primary"
+                        (click)="scanNext()"
+                        ariaLabel="Scanner un nouveau bordereau">
+                    </p-button>
+                </div>
+            </div>
+        }
+
+        <!-- ================= ERROR ================= -->
+        @if (step() === 'error') {
+            <div class="result result--error" role="alert" aria-live="assertive">
+                <div class="result__icon result__icon--error" aria-hidden="true">
+                    <i class="pi pi-times-circle"></i>
+                </div>
+                <h1 id="decharge-title" class="panel-header__title">Une erreur est survenue</h1>
+
+                <div class="error-callout" role="note">
+                    <p>{{ errorMessage() }}</p>
+                </div>
+
+                <div class="actions actions--split">
+                    <p-button
+                        type="button"
+                        label="Retour scan"
+                        severity="secondary"
+                        icon="pi pi-arrow-left"
+                        styleClass="actions__btn actions__btn--ghost"
+                        (click)="scanNext()"
+                        ariaLabel="Revenir à l'étape de scan">
+                    </p-button>
+                    <p-button
+                        type="button"
+                        label="Réessayer"
+                        icon="pi pi-refresh"
+                        styleClass="actions__btn actions__btn--primary"
+                        (click)="scanNext()"
+                        ariaLabel="Réessayer l'opération">
+                    </p-button>
+                </div>
+            </div>
+        }
+
+    </section>
+</div>

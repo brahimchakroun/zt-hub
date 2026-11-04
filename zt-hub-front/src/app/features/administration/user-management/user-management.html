@@ -1,0 +1,279 @@
+<div class="admin-page">
+
+  <p-toast position="top-right" [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0', top: '0' } }" />
+  <p-confirmDialog />
+
+  <header class="page-header">
+    <div class="page-header__inner">
+      <div>
+        <h1 class="page-header__title">Utilisateurs</h1>
+        <p class="page-header__subtitle">Gérez les comptes utilisateurs, rôles et statuts de la plateforme.</p>
+      </div>
+      <div class="page-header__actions">
+        <div class="search-box">
+          <i class="pi pi-search search-box__icon"></i>
+          <input
+            pInputText
+            type="search"
+            [ngModel]="query()"
+            (ngModelChange)="query.set($event)"
+            placeholder="Rechercher (nom, email, login…)"
+            class="search-box__input"
+          />
+        </div>
+        <p-button
+          label="Nouvel utilisateur"
+          icon="pi pi-plus"
+          styleClass="custom"
+          (click)="openAdd()"
+          ariaLabel="Ajouter un nouvel utilisateur"
+        ></p-button>
+      </div>
+    </div>
+  </header>
+
+  <section class="card page-card">
+    <div class="table-wrap">
+      <table class="table" role="grid" aria-label="Liste des utilisateurs">
+        <thead>
+        <tr>
+          <th scope="col">Utilisateur</th>
+          <th scope="col">Identifiant</th>
+          <th scope="col">Rôles</th>
+          <th scope="col">Statut</th>
+          <th scope="col" class="col-actions">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        @if (filtered().length === 0) {
+          <tr>
+            <td colspan="5" class="empty">
+              <div class="empty__inner">
+                <i class="pi pi-users empty__icon"></i>
+                <p>Aucun utilisateur ne correspond.</p>
+              </div>
+            </td>
+          </tr>
+        } @else {
+          @for (u of filtered(); track u.id) {
+            <tr class="row" [class.row--inactive]="u.status === 'INACTIVE'">
+              <td>
+                <div class="user-cell">
+                  <span class="avatar" [attr.aria-hidden]="true">{{ u.firstName[0] }}{{ u.lastName[0] }}</span>
+                  <div class="user-cell__text">
+                    <div class="user-cell__name">{{ u.firstName }} {{ u.lastName }}</div>
+                    <div class="user-cell__email">{{ u.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td><code class="mono">{{ u.username }}</code></td>
+              <td>
+                <div class="pill-row" aria-label="Rôles affectés">
+                  @for (rc of u.roleCodes; track rc) {
+                    <span
+                      class="pill"
+                      [class.pill--ghost]="!(roleByCode().get(rc))">
+                      {{ (roleByCode().get(rc)?.name) ?? rc }}
+                    </span>
+                  }
+                  @if (u.roleCodes.length === 0) {
+                    <span class="pill pill--muted">Aucun rôle</span>
+                  }
+                </div>
+              </td>
+              <td>
+                <span
+                  class="status"
+                  [class.status--active]="u.status === 'ACTIVE'"
+                  [class.status--inactive]="u.status === 'INACTIVE'"
+                >
+                  <span class="status__dot" aria-hidden="true"></span>
+                  {{ u.status === 'ACTIVE' ? 'Actif' : 'Inactif' }}
+                </span>
+              </td>
+              <td class="col-actions">
+                <div class="row-actions">
+                  <p-button
+                    type="button"
+                    styleClass="btn-ghost"
+                    (click)="onResetPassword(u)"
+                    icon="pi pi-key"
+                    ariaLabel="Réinitialiser le mot de passe"
+                    pTooltip="Réinitialiser le mot de passe"
+                  ></p-button>
+                  <p-button
+                    type="button"
+                    styleClass="btn-ghost btn-ghost--warn"
+                    (click)="onToggleStatus(u)"
+                    [icon]="u.status === 'ACTIVE' ? 'pi pi-ban' : 'pi pi-check'"
+                    [ariaLabel]="u.status === 'ACTIVE' ? 'Désactiver' : 'Réactiver'"
+                    ariaLabel="Désactiver ou réactiver l'utilisateur"
+                    pTooltip="Désactiver ou réactiver l'utilisateur"
+                  ></p-button>
+                  <p-button
+                    type="button"
+                    styleClass="btn-ghost"
+                    (click)="openEdit(u)"
+                    icon="pi pi-pencil"
+                    ariaLabel="Éditer l'utilisateur"
+                    pTooltip="Éditer l'utilisateur"
+                  ></p-button>
+                  <p-button
+                    type="button"
+                    styleClass="btn-ghost btn-ghost--danger"
+                    (click)="onDelete(u)"
+                    icon="pi pi-trash"
+                    ariaLabel="Supprimer l'utilisateur"
+                    pTooltip="Supprimer l'utilisateur"
+                  ></p-button>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Add/Edit dialog -->
+  <p-dialog
+          [modal]="true"
+          [visible]="showDialog()"
+          [style]="{ width: '94%', maxWidth: 640 }"
+          [breakpoints]="{ '920px': '94vw' }"
+          (onHide)="onHideDialog()"
+          [header]="mode() === 'add' ? 'Nouvel utilisateur' : 'Modifier l\'utilisateur'"
+          [dismissableMask]="true"
+  >
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-grid" novalidate>
+      <!-- Message d'erreur -->
+      @if (formError()) {
+      <div class="form-error" role="alert">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ formError() }}</span>
+      </div>
+      }
+      <!-- Prénom + Nom -->
+      <div class="form-row">
+        <div class="field">
+          <label class="field__label">Prénom *</label>
+          <input pInputText formControlName="firstName" class="field__input" placeholder="Karim" />
+          @if (form.controls.firstName.touched && form.controls.firstName.errors?.['required']) {
+          <small class="field__error">Champ requis</small>
+          }
+        </div>
+        <div class="field">
+          <label class="field__label">Nom *</label>
+          <input pInputText formControlName="lastName" class="field__input" placeholder="Ben Salah" />
+          @if (form.controls.lastName.touched && form.controls.lastName.errors?.['required']) {
+          <small class="field__error">Champ requis</small>
+          }
+        </div>
+      </div>
+
+      <!-- Email (partie locale uniquement) -->
+      <div class="field">
+        <label class="field__label">Email *</label>
+        <div class="email-input-group">
+          <input
+                  pInputText
+                  formControlName="emailLocal"
+                  class="field__input"
+                  placeholder="karim.bensalah"
+          />
+          <span class="email-suffix">@zitounatakaful.com</span>
+        </div>
+        @if (form.controls.emailLocal.touched && form.controls.emailLocal.invalid) {
+        <small class="field__error">
+          @if (form.controls.emailLocal.errors?.['required']) {
+          Champ requis
+          } @else if (form.controls.emailLocal.errors?.['pattern']) {
+          Caractères autorisés : lettres, chiffres, . _ -
+          } @else {
+          Identifiant trop court
+          }
+        </small>
+        }
+      </div>
+
+      <!-- Rôles -->
+      <div class="field">
+        <label class="field__label">Rôles * (sélection multiple)</label>
+        <p-multiSelect
+                [options]="roles()"
+                optionLabel="name"
+                optionValue="code"
+                formControlName="roleCodes"
+                placeholder="Sélectionner un ou plusieurs rôles"
+                [showToggleAll]="false"
+                display="chip"
+                styleClass="w-full"
+        ></p-multiSelect>
+        @if (form.controls.roleCodes.touched && form.controls.roleCodes.errors?.['minlength']) {
+        <small class="field__error">Au moins un rôle est requis</small>
+        }
+      </div>
+
+      <!-- Mot de passe + Statut -->
+      <div class="form-row">
+        <div class="field">
+          <label class="field__label">
+            Mot de passe {{ passwordRequired ? '*' : '(laisser vide pour ne pas changer)' }}
+          </label>
+          <div class="password-field">
+            <input
+                    pInputText
+                    [type]="showPassword ? 'text' : 'password'"
+                    formControlName="password"
+                    class="field__input password-input"
+                    [placeholder]="passwordRequired ? '12345678 (par défaut)' : '•••••••• (inchangé)'"
+            />
+            <button
+                    type="button"
+                    class="password-toggle"
+                    (click)="showPassword = !showPassword"
+                    [attr.aria-label]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+            >
+              <i class="pi" [class.pi-eye]="!showPassword" [class.pi-eye-slash]="showPassword"></i>
+            </button>
+          </div>
+          @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small class="field__error">8 caractères minimum</small>
+          }
+        </div>
+
+        <div class="field field--inline">
+          <label class="field__label">Statut</label>
+
+          <div class="status-toggle">
+            <label class="switch">
+              <input
+                      type="checkbox"
+                      [checked]="form.getRawValue().status === 'ACTIVE'"
+                      (change)="onToggleStatusInput()"
+              />
+              <span class="switch__slider"></span>
+            </label>
+
+            <div class="status-toggle__content">
+      <span class="status-toggle__label"
+            [class.is-active]="form.getRawValue().status === 'ACTIVE'">
+        {{ form.getRawValue().status === 'ACTIVE' ? 'Compte actif' : 'Compte inactif' }}
+      </span>
+              <span class="status-toggle__hint">
+        {{ form.getRawValue().status === 'ACTIVE' ? 'L\'utilisateur peut se connecter' : 'L\'utilisateur est bloqué' }}
+      </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="dialog-footer">
+        <p-button type="button" severity="secondary" label="Annuler" (click)="onHideDialog()" styleClass="btn-ghost"></p-button>
+        <p-button type="submit" label="Enregistrer" icon="pi pi-check" [loading]="saving()" styleClass="btn-primary"></p-button>
+      </footer>
+    </form>
+  </p-dialog>
+
+</div>

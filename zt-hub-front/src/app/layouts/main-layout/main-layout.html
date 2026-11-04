@@ -1,0 +1,106 @@
+<div class="layout" [class.layout--collapsed]="sidebarCollapsed()" [class.layout--mobile-open]="mobileMenuOpen()">
+  @if (mobileMenuOpen()) {
+  <div class="sidebar-backdrop"
+       (click)="mobileMenuOpen.set(false)">
+  </div>
+} 
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+ 
+ <img
+                src="assets/images/ztlogo.png"
+                alt="Zitouna Takaful"
+                class="logo-menu"
+                onerror="this.style.display='none'"
+        />
+  @if (showMenuText()) {
+    <span class="brand-text">ZT-hub</span>
+  }
+
+  <button
+    class="sidebar-resize"
+    pButton
+    type="button"
+    [text]="true"
+    [icon]="sidebarCollapsed() ?'pi pi-angle-left': 'pi pi-angle-left'"
+    (click)="toggleSidebar()">
+  </button>
+</div>
+
+    <nav class="sidebar__nav">
+      @for (item of myMenus(); track item.label) {
+        @if (item.pages?.length) {
+          <div class="nav-section">
+            <button class="nav-section__header" (click)="toggleSection(item.label)" pRipple>
+              <i [class]="'pi pi-' +item.icon"></i>
+              @if (showMenuText()) {
+                <span>{{ item.label }}</span>
+                <i class="pi pi-chevron-down chevron" [class.chevron--open]="isExpanded(item.label)"></i>
+              }
+            </button>
+            @if (isExpanded(item.label) && showMenuText()) {
+              <div class="nav-section__items">
+                @for (child of item.pages; track child.label) {
+                  <a class="nav-item nav-item--child"
+                     [routerLink]="child.urlRoot"
+                     routerLinkActive="nav-item--active"
+                     (click)="navigateMenu()"
+                     pRipple>
+                    <i [class]="'pi pi-' +child.icon"></i>
+                    <span>{{ child.label }}</span>
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <a class="nav-item"
+             [routerLink]="item.urlRoot"
+             routerLinkActive="nav-item--active"
+             pRipple>
+            <i [class]="item.icon"></i>
+            @if (showMenuText()) {
+              <span>{{ item.label }}</span>
+            }
+          </a>
+        }
+      }
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="header">
+      <button class="header__toggle" (click)="toggleSidebar()" pButton type="button" icon="pi pi-bars" [text]="true"></button>
+
+      <div class="header__spacer"></div>
+
+      <div class="header__actions">
+        <button pButton type="button" icon="pi pi-bell" [text]="true" class="p-button-rounded" pTooltip="Notifications"></button>
+
+        <div class="user-menu" (click)="goToProfile()" style="cursor:pointer">
+          <p-avatar [label]="(user()?.firstName?.[0] || 'U') + (user()?.lastName?.[0] || '')"
+                    shape="circle" styleClass="user-avatar"></p-avatar>
+          @if (showMenuText()) {
+            <div class="user-info">
+              <span class="user-name">{{ user()?.firstName }} {{ user()?.lastName }}</span>
+              <span class="user-role">{{ user()?.roles?.[0] || 'User' }}</span>
+            </div>
+          }
+        </div>
+
+        <button pButton type="button" icon="pi pi-sign-out" [text]="true" severity="secondary"
+                pTooltip="Déconnexion" (click)="logout()"></button>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+
+    <footer class="footer">
+      <span>© 2026 Assurance Zitouna Takaful</span>
+    </footer>
+  </div>
+</div>

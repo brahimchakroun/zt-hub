@@ -1,0 +1,71 @@
+<main class="vie">
+  <header class="vie__header">
+    <div class="vie__title-block">
+      <div class="vie__icon" aria-hidden="true">
+        <i class="pi pi-file-pdf"></i>
+      </div>
+      <div class="vie__title-content">
+        <h1 class="vie__title">SAV: Lettre d’épargne constituée</h1>
+        <p class="vie__subtitle">Section Vie — Génération de la lettre d’épargne constituée</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="card" aria-labelledby="lettre-title">
+   
+    <div class="card__body">
+      <div class="inline-row">
+          <label class="form-label" for="numero-police">Numéro de police</label>
+          <input
+            id="numero-police"
+            pInputText
+            type="text"
+            [(ngModel)]="numeroPolice"
+            placeholder="Saisissez le numéro de police"
+            autocomplete="off"
+            [disabled]="isLoading"
+            (keyup.enter)="genererLettre()"
+          />
+
+          <p-button
+            label="Générer la lettre"
+            icon="pi pi-file-pdf"
+            [loading]="isLoading"
+            [disabled]="!numeroPolice.trim() || isLoading"
+            (onClick)="genererLettre()"
+            styleClass="generate-button"
+          />
+    </div>
+      @if (statusMessage) {
+        <p class="status" [class.status--error]="statusType === 'error'" [class.status--success]="statusType === 'success'" role="status">
+          {{ statusMessage }}
+        </p>
+      }
+                <!-- ============================================================ -->
+                <!-- PROGRESS -->
+                <!-- ============================================================ -->
+                @if (isLoading) {
+                <div class="progress no-print" role="progressbar"
+                     [attr.aria-valuenow]="progress()"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+                    <div class="progress__bar" [style.width.%]="progress()"></div>
+                    <span class="progress__label">{{ progress() }}%</span>
+                </div>
+                }
+        @if (pdfUrl) {
+            <div class="pdf-preview" style="margin-top: 24px; width: 100%;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3 class="form-label" style="margin: 0;">Aperçu du document PDF</h3>
+                <!-- Optionnel : Un bouton pour télécharger directement le PDF affiché -->
+                <a [href]="pdfUrl | safeUrl" [download]="'lettre-epargne_' + numeroPolice + '.pdf'" class="p-button p-component p-button-sm" style="text-decoration: none; padding: 6px 12px; font-size: 0.85rem;">
+                  <i class="pi pi-download" style="margin-right: 6px;"></i> Télécharger
+                </a>
+              </div>
+              
+              <iframe [src]="pdfUrl | safeUrl" width="100%" height="600px" style="border: 1px solid var(--surface-100); border-radius: var(--radius-md); background: #fff;"></iframe>
+            </div>
+          }
+    </div>
+  </section>
+</main>

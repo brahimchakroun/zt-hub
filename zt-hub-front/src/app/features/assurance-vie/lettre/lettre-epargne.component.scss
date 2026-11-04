@@ -1,0 +1,203 @@
+:host {
+  display: block;
+  --primary-500: #1e4267;
+  --accent-500: #c9a840;
+  --text-900: #0f172a;
+  --text-500: #64748b;
+  --surface-0: #ffffff;
+  --surface-50: #f8f9f4;
+  --surface-100: #f0ede8;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.vie {
+  width: 100%;
+  min-height: 100%;
+  padding: 16px;
+  color: var(--text-900);
+  background: var(--surface-50);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.vie__header {
+  margin-bottom: 16px;
+}
+
+.vie__title-block {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  overflow: hidden;
+  background: var(--surface-0);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+
+  &::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-500));
+    content: '';
+  }
+}
+
+.vie__icon {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  place-items: center;
+  color: #fff;
+  background: var(--primary-500);
+  border-radius: var(--radius-lg);
+  font-size: 1.4rem;
+}
+
+.vie__title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.vie__subtitle {
+  margin: 5px 0 0;
+  color: var(--text-500);
+  font-size: 0.9rem;
+}
+
+.card {
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: var(--surface-0);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.card__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--surface-100);
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  i {
+    color: var(--primary-500);
+  }
+}
+
+.card__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+}
+
+.form-label {
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+input[pInputText] {
+  width: min(100%, 420px);
+}
+
+.status {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+
+  &--success {
+    color: #16a34a;
+  }
+
+  &--error {
+    color: #dc2626;
+  }
+}
+
+.progress {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  margin: 26px 0 12px;
+  overflow: visible;
+  background: var(--surface-100);
+  border-radius: 999px;
+  animation: progress-fade-in 0.4s ease both;
+
+  &__bar {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-500));
+    border-radius: inherit;
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 2px 8px rgba(30, 66, 103, 0.3);
+
+    &::before {
+      position: absolute;
+      top: 0;
+      left: -60%;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+      content: '';
+      animation: progress-shine 2s ease-in-out infinite;
+    }
+  }
+
+  &__label {
+    position: absolute;
+    top: -22px;
+    right: 0;
+    color: var(--text-500);
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@keyframes progress-shine {
+  0% { left: -60%; }
+  60%, 100% { left: 130%; }
+}
+
+@keyframes progress-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+:host ::ng-deep .generate-button {
+  background: var(--primary-500);
+  border-color: var(--primary-500);
+}
+
+@media (max-width: 600px) {
+  .vie__title-block {
+    padding: 16px;
+  }
+
+  .vie__icon {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+  }
+}
+.inline-row {
+  display: flex;            
+  flex-direction: row;       
+  align-items: center;      
+  gap: 12px;                
+  flex-wrap: nowrap;       
+  width: 100%;       // S'assure de prendre toute la largeur disponible
+  overflow-x: auto; 
+}

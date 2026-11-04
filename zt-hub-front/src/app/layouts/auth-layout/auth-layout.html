@@ -1,0 +1,49 @@
+<div class="auth-page">
+
+    <div class="logo-side">
+        <img
+                src="assets/images/ztlogo.png"
+                alt="Zitouna Takaful"
+                class="brand-logo"
+                onerror="this.style.display='none'"
+        />
+    </div>
+
+    <div class="card-side">
+
+        <div class="auth-card">
+
+            <div class="card-header">
+                <h1 class="card-title">
+                    @if (title()) {
+                        <span class="t-regular">{{ title() }}</span>
+                    } @else {
+                        <span class="t-regular">La plateforme digitale des services transverses de </span>
+                        <span class="t-bold">Zitouna Takaful</span>
+                    }
+                </h1>
+
+                @if (subtitle()) {
+                    <p class="card-subtitle">
+                        {{ subtitle() }}
+                    </p>
+                } @else {
+                    <p class="card-subtitle">
+                        Connectez-vous à votre espace
+                    </p>
+                }
+
+                <div class="card-line"></div>
+            </div>
+
+            <router-outlet />
+
+            <footer class="card-footer">
+                © 2026 Assurance Zitouna. Tous droits réservés.
+            </footer>
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,232 @@
+@use './app/core/styles/design-tokens' as *;
+
+/* =====================================================================
+   Reset + base (Mobile-First)
+   ===================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+:root{
+   --primary-600: #7da65d;
+  --primary-500: #1e4267;
+  --primary-400: #495d70;
+  --primary-300: #1e42671a;
+  --primary-200: #1e426753;
+  --p-select-option-selected-focus-background-color: var(--primary-300);
+  -p-multiselect-focus-border-color: var(--p-form-field-focus-border-color);
+  --p-inputtext-focus-border-color: var(--primary-500);
+}
+html {
+  font-size: 14px;             // plus lisible sur mobile : 1rem ≈ 14px
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+
+  @include bp(md) { font-size: 15px; }
+  @include bp(lg) { font-size: 16px; }
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: $font-sans;
+  background: $color-surface-100;
+  color: $color-text-900;
+  line-height: $lh-normal;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: inherit; }
+
+img, svg { max-width: 100%; display: block; }
+
+button { font-family: inherit; }
+
+/* =====================================================================
+   Surcharge de la palette PrimeNG (Aura) avec les tokens Zitouna
+   (permet de garder p-button / p-card / etc. cohérents avec le design)
+   ===================================================================== */
+:root {
+  --p-primary-50:  #{$color-primary-50};
+  --p-primary-100: #{$color-primary-100};
+  --p-primary-200: #{$color-primary-200};
+  --p-primary-300: #{$color-primary-300};
+  --p-primary-400: #{$color-primary-400};
+  --p-primary-500: #{$color-primary-500};
+  --p-primary-600: #{$color-primary-600};
+  --p-primary-700: #{$color-primary-700};
+  --p-primary-800: #{$color-primary-800};
+  --p-primary-900: #{$color-primary-900};
+
+  --p-surface-0:   #{$color-surface-0};
+  --p-surface-50:  #{$color-surface-50};
+  --p-surface-100: #{$color-surface-100};
+  --p-surface-200: #{$color-surface-200};
+  --p-surface-300: #{$color-surface-300};
+
+  --p-text-color:        #{$color-text-900};
+  --p-text-muted-color:  #{$color-text-400};
+  --p-surface-ground:    #{$color-surface-100};
+  --p-content-border-radius: #{$radius-md};
+}
+
+/* =====================================================================
+   Utility classes globales
+   ===================================================================== */
+@include utilities;
+
+/* =====================================================================
+   Skeleton shimmer (loading placeholder — s'applique sur .skeleton)
+   ===================================================================== */
+.skeleton {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    $color-surface-200 0%,
+    $color-surface-100 50%,
+    $color-surface-200 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: $radius-md;
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* =====================================================================
+   Focus ring accessible (pour tous les éléments focusables sans
+   focus already-géré par PrimeNG)
+   ===================================================================== */
+:focus-visible {
+  outline: 3px solid rgba($color-primary-500, 0.35);
+  outline-offset: 2px;
+  border-radius: $radius-sm;
+}
+
+/* =====================================================================
+   Réduction de mouvement (préférence utilisateur / accessibilité)
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+.access-chip{
+  background-color: #fff !important;
+  color: #7da65d !important;
+  border-color: #7da65d !important;
+}
+.p-button {
+  color: var(--primary-500) !important;
+  background-color: transparent !important;
+  border-color: var(--primary-500) !important;
+  font-size: smaller !important;
+  padding: 5px 5px 5px  !important;
+}
+
+.custom{
+  color: #fff !important;
+  background-color: var(--primary-500) !important;
+  border-color: var(--primary-500) !important;
+  font-size: smaller !important;
+  padding: 5px 5px 5px  !important;
+}
+
+
+
+.p-button:hover {
+  background-color: var(--primary-500) !important;
+  border-color: var(--primary-500) !important;
+  color: #fff !important;
+}
+
+.custom:hover {
+  background-color: #fff !important;
+  border-color: var(--primary-500) !important;
+  color: var(--primary-500) !important;
+}
+
+.p-button:enabled:active {
+  background-color: var(--primary-500) !important;
+  border-color: var(--primary-500)   !important;
+}
+
+.p-button button{
+  padding: 0;
+}
+
+/* styles.css — s'applique à toute l'application */
+@media print {
+  app-header,
+  .header,
+  .header__toggle,
+  .header__actions,
+  .user-menu {
+    display: none !important;
+  }
+}
+
+
+// =========================================================================
+// Buttons (branding Zitouna)
+// =========================================================================
+.btn-primary :deep(button) {
+  background: var(--primary-500) !important;
+  border-color: var(--primary-500) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  border-radius: $radius-md !important;
+  padding-block: 0.7rem !important;
+  transition: background .15s, box-shadow .15s, transform .08s;
+  box-shadow: 0 6px 16px rgba(var(--primary-500), 0.25);
+  &:not(:disabled):hover {
+    background: var(--primary-500) !important;
+    border-color: var(--primary-500) !important;
+  }
+  &:not(:disabled):active { transform: translateY(1px); }
+}
+
+.btn-ghost ::ng-deep button {
+  background: transparent !important;
+  color: $color-text-700 !important;
+  border: 1px solid $color-surface-200 !important;
+  border-radius: $radius-md !important;
+  &:not(:disabled):hover {
+    background: $color-surface-100 !important;
+    color: $color-text-900 !important;
+  }
+  &--warn:not(:disabled):hover :deep(button) {
+    background: $color-warning-bg !important;
+    border-color: $color-warning-border !important;
+    color: $color-warning !important;
+  }
+&--danger ::ng-deep button {
+    color: $color-danger !important;
+  }
+  &--danger:not(:disabled):hover :deep(button) {
+    background: $color-danger-bg !important;
+    border-color: $color-danger-border !important;
+    color: $color-danger !important;
+  }
+}
+.p-inputtext:focus {
+  border-color: var(--primary-500) !important;
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-500), 0.25);
+}
+.p-select-option.p-select-option-selected {
+  background-color: var(--primary-200) !important;
+  color: var(--primary-500) !important;
+}
+
+.p-select-option.p-select-option-selected.p-focus{
+  background-color: var(--primary-300) !important;
+  color: var(--primary-500) !important;
+}

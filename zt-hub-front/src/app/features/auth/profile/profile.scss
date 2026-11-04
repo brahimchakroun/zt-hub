@@ -1,0 +1,70 @@
+.profile-content {
+  margin-top: 1rem;
+}
+
+.profile-header {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.5rem;
+  background: #faf9f7;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.profile-avatar {
+  background: #7da65d !important;
+  color: #fff !important;
+  flex-shrink: 0;
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name {
+  margin: 0 0 0.35rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.profile-email {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.profile-roles {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.78rem 1.25rem;
+  background: #fff;
+  color: #7da65d;
+  border: 1.5px solid #7da65d;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: #7da65d;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(125, 166, 93, 0.30);
+}

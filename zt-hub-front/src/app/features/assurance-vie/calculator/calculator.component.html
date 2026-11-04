@@ -1,0 +1,454 @@
+<div class="vie">
+
+    <!-- ============================================================ -->
+    <!-- HEADER -->
+    <!-- ============================================================ -->
+  <header class="vie__header no-print">
+
+  <!-- ========== HEADER PRINCIPAL ========== -->
+  <div class="vie__title-block">
+    
+     
+      @if (selectedProductBinding && !showProductSelection) {
+        <img width="40"
+                                src="assets/images/icon/{{selectedProduct() }}.png"
+                                alt="{{ selectedProduct()}}"
+                                class="logo-menu"
+                                onerror="this.style.display='none'"
+                        />
+    }@else {
+        <div class="vie__icon">
+         <i class="pi pi-chart-line"></i>
+        </div>
+    }
+  
+
+    <div class="vie__title-content">
+      <h1 class="vie__title">
+        Calculateur EC
+        @if (selectedProductBinding) {
+          <span class="vie__product-badge">
+            {{ currentProductConfig().label }}
+          </span>
+        }
+      </h1>
+      <p class="vie__subtitle">Section Vie — Calcul de l’épargne constituée</p>
+    </div>
+
+    <!-- Bouton pour revenir au choix du produit -->
+    @if (selectedProductBinding && !showProductSelection) {
+      <button class="btn-change-product" (click)="openProductSelection()">
+        <i class="pi pi-sync"></i>
+        Changer de produit
+      </button>
+    }
+  </div>
+
+  <!-- ========== SÉLECTION DES PRODUITS ========== -->
+  @if (showProductSelection) {
+    <div class="product-selection" @fadeSlide>
+      <div class="product-selection__header">
+        <h3>Choisissez un produit</h3>
+        <p>Sélectionnez le produit d’assurance vie pour lancer le calcul</p>
+      </div>
+
+      <div class="product-grid">
+        @for (product of products; track product.id) {
+          <div class="product-widget"
+               [class.active]="product.id === selectedProductBinding"
+               (click)="selectProduct(product)"
+               role="button"
+               tabindex="0"
+               (keydown.enter)="selectProduct(product)"
+               (keydown.space)="selectProduct(product); $event.preventDefault()">
+
+            <div class="product-widget__icon">
+                 
+                <img
+                                src="assets/images/icon/{{ product.id }}.png"
+                                alt="{{ product.id }}"
+                                class="logo-menu"
+                                onerror="this.style.display='none'"
+                        />
+             
+            </div>
+
+            <div class="product-widget__body">
+              <h4 class="product-widget__title">{{ product.label }}</h4>
+              <p class="product-widget__desc">{{ product.description }}</p>
+            </div>
+
+            <div class="product-widget__check" *ngIf="product.id === selectedProductBinding">
+              <i class="pi pi-check"></i>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+</header>
+
+     @if (! showProductSelection) {
+    <!-- ============================================================ -->
+    <!-- CARTES : PRODUIT + UPLOAD -->
+    <!-- ============================================================ -->
+    <div class="vie__grid no-print">
+
+
+        <!-- CARTE UPLOAD -->
+        <div class="card">
+            <div class="card__title">
+                <i class="pi pi-upload"></i>
+                <span>Charger les données</span>
+            </div>
+            <div class="card__body">
+
+                <div class="police-search">
+                    <label for="numero-police" class="calc__info-label">Numéro de police</label>
+                    <div class="police-search__controls">
+                        <input
+                                id="numero-police"
+                                pInputText
+                                type="text"
+                                [(ngModel)]="numeroPoliceInput"
+                                (keydown.enter)="$event.preventDefault(); loadFromApi()"
+                                placeholder="Saisissez le numéro de police"
+                                autocomplete="off"
+                                [disabled]="isLoadingData()"/>
+                        <button
+                                type="button"
+                                class="btn btn--primary"
+                                (click)="loadFromApi()"
+                                [disabled]="isLoadingData()">
+                            <i [class]="isLoadingData() ? 'pi pi-spin pi-spinner' : 'pi pi-search'"></i>
+                            <span> {{ isLoadingData() ? 'Chargement...' : 'Rechercher' }}</span>
+                        </button>
+
+                    
+                    </div>
+                </div>
+                @if (! isOnlyApi()) {
+                    <div class="upload__separator">ou charger un fichier</div>
+                
+                    <div class="upload">
+                        <div
+                                class="upload-zone"
+                                (click)="fileInput.click()"
+                                (dragover)="onDragOver($event)"
+                                (drop)="onDrop($event)"
+                        >
+
+                            <div class="upload-content">
+                                <i class="pi pi-upload upload-icon"></i>
+
+                                <div class="upload-title">
+                                    Glissez un fichier ici ou
+                                    <span class="browse-link">parcourez</span>
+                                </div>
+
+                                <div class="upload-subtitle">
+                                    <span class="upload__hint">Fichier .xlsx, .xls, .csv</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <input
+                                #fileInput
+                                type="file"
+                                accept=".xlsx,.xls,.csv"
+                                hidden
+                                [disabled]="isLoadingData()"
+                                (change)="onFileSelected($event)"/>
+
+                    </div>
+                }
+
+                <!-- ============================================================ -->
+                <!-- CARTE DÉCISION (choix de date) -->
+                <!--   visible uniquement si : rawData non vide ET décision pas prise -->
+                <!-- ============================================================ -->
+                <!-- 3. DATE MANUELLE (visible seulement après chargement) -->
+                @if (rawData().length > 0 ) {
+                <div class="form-section form-section--date">
+
+                     @if (fraisModifiable) {
+                        <label class="calc__info-label">Frais de gestion après 31/10/2025 :</label>
+                           <input
+                            id="Frais de gestion"
+                            pInputText
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            [ngModel]="fraisDeGestionInput"
+                            (ngModelChange)="onFraisChange($event)"
+                            placeholder="1.2"
+                            autocomplete="off"
+                            [disabled]="isLoadingData()"
+                        />
+                                
+                }
+                    <label class="calc__info-label">Date de calcul</label>
+                    <div class="date-row">
+                        <input pInputText
+                                type="date"
+                                class="decision__input"
+                                [(ngModel)]="manualDateInput"
+                                (keydown.enter)="$event.preventDefault(); chooseManualDate()"
+                        />
+                        <button
+                                type="button"
+                                class="btn btn--primary"
+                                (click)="chooseManualDate()">
+                            <i class="pi pi-check"></i>
+                            <span>Valider la date</span>
+                        </button>
+                        <button
+                                type="button"
+                                class="btn btn--ghost"
+                                (click)="skipDates()">
+                            Passer
+                        </button>
+                    </div>
+
+                    <div class="date-feedback"
+                         [class.date-feedback--error]="manualDateStatus && !manualDateStatus.startsWith('Date validée')"
+                         [class.date-feedback--success]="manualDateStatus.startsWith('Date validée')">
+                        {{ manualDateStatus || 'La date doit être postérieure à la dernière quittance et ≤ aujourd\'hui' }}
+                    </div>
+                </div>
+                }
+               
+
+
+            </div>
+        </div>
+        <div class="card">
+            <div class="card__title">
+                <i class="pi pi-info"></i>
+                <span>POLICE en cours de traitement</span>
+            </div>
+            <div class="card__body">
+
+                <div class="info__row">
+                    <div class="info__item">
+                        <span class="info__label">N° Contrat</span>
+                        <span class="info__value">{{ contrat() || '—' }}</span>
+                    </div>
+                    <div class="info__item">
+                        <span class="info__label">Code Agence</span>
+                        <span class="info__value">{{ agence() || '—' }}</span>
+                    </div>
+                    <div class="info__item">
+                        <span class="info__label">Nb quittances</span>
+                        <span class="info__value">{{ tailleTableauData() }}</span>
+                    </div>
+                    @if (tailleTableauData() > 0) {
+                    <div class="info__item">
+                        <span class="info__label">Dernière date</span>
+                        <span class="info__value info__value--warn">
+                {{ lastDateStr() }}
+              </span>
+                    </div>
+                    }
+                    @if (decisionMade()) {
+                    <div class="info__item">
+                        <span class="info__label">Choix</span>
+                        <span class="info__value">
+                @switch (decisionMade()) {
+                  @case ('today') { Aujourd'hui }
+                  @case ('manual') { Date manuelle }
+                  @case ('none') { Aucune date }
+                  @default { — }
+                }
+              </span>
+                    </div>
+                    }
+                </div>
+
+                 <div class="info__row">
+          <div class="info__item">
+            <span class="info__label">Frais d'acquisition</span>
+            <span class="info__value">
+              {{ currentProductConfig().id === 'mothmer' ? '0% / 3%' : '0%' }}
+            </span>
+          </div>
+          <div class="info__item">
+            <span class="info__label">Frais de gestion</span>
+            <span class="info__value"
+                  [class.info__value--warn]="currentProductConfig().hasManagementFees">
+              {{ currentProductConfig().hasManagementFees ? currentProductConfig().managementFeesRate  : 'Aucun' }}
+            </span>
+           
+          </div>
+          <div class="info__item">
+            <span class="info__label">Option date manuelle</span>
+            <span class="info__value">
+              {{ currentProductConfig().hasManualDateOption ? 'Oui' : 'Aujourd\'hui uniquement' }}
+            </span>
+          </div>
+        </div>
+
+
+                <!-- ============================================================ -->
+                <!-- PROGRESS -->
+                <!-- ============================================================ -->
+                @if (showProgress()) {
+                <div class="progress no-print" role="progressbar"
+                     [attr.aria-valuenow]="progress()"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+                    <div class="progress__bar" [style.width.%]="progress()"></div>
+                    <span class="progress__label">{{ progress() }}%</span>
+                </div>
+                }
+            </div>
+        </div>
+
+
+    </div>
+    }
+    @if (hasData()) {
+    <!-- ============================================================ -->
+    <!-- PRINT ONLY : mise en page impression -->
+    <!-- ============================================================ -->
+    <div class="print-only">
+        <div class="print-page">
+
+            <!-- Titre -->
+            <h1 class="print-title">RÉSULTAT DU CALCUL POLICE {{ contrat() }}</h1>
+
+
+            <!-- Date d'édition -->
+            <div class="print-date">Date d'édition : {{ todayLabel }}</div>
+
+            <!-- Encadré infos contrat -->
+            <div class="print-infos">
+                <span class="print-infos__item">
+                    N° Contrat : <strong>{{ contrat() }}</strong>
+                </span>
+                            <span class="print-infos__item">
+                    Code Agence : <strong>{{ agence() }}</strong>
+                </span>
+                            <span class="print-infos__item">
+                    Nombre de quittances : <strong>{{ tailleTableauData() }}</strong>
+                </span>
+                            <span class="print-infos__item">
+                Dernière date : <strong>{{ lastDateStr() }}</strong>
+                </span>
+
+            </div>
+            <!-- ============================================================ -->
+            <!-- BOUTONS D'IMPRESSION + ACTIONS -->
+            <!-- ============================================================ -->
+            @if (isCalculated()) {
+            <!-- Récapitulatif -->
+            <div class="print-footer">
+                <div class="print-stat">
+                    <span class="print-stat__label">Total encaissé :</span>
+                    <span class="print-stat__value">{{ formatNum(stats().totalEncaisse) }}</span>
+                </div>
+                <div class="print-stat">
+                    <span class="print-stat__label">Total net :</span>
+                    <span class="print-stat__value">{{ formatNum(stats().totalNet) }}</span>
+                </div>
+                <div class="print-stat">
+                    <span class="print-stat__label">EC avec PB final :</span>
+                    <span class="print-stat__value">{{ formatNum(stats().finalECPB) }}</span>
+                </div>
+                <div class="print-stat">
+                    <span class="print-stat__label">EC sans PB final :</span>
+                    <span class="print-stat__value">{{ formatNum(stats().finalECSansPB) }}</span>
+                </div>
+            </div>
+            }
+
+
+            <div class=" div-export no-print">
+                <button type="button"
+                        class="btn btn--ghost"
+                        (click)="printDocument()">
+                    <i class="pi pi-print"></i>
+
+                </button>
+                <button type="button"
+                        class="btn btn--ghost"
+                        (click)="downloadResult()">
+                    <i class="pi pi-download"></i>
+
+                </button>
+            </div>
+            
+            <!-- Tableau -->
+            <div class="table-container">
+                @if (! isOnlyApi()) {
+                <table class="print-table">
+                    <thead>
+                    <tr>
+                        <th>N° Quittance</th>
+                        <th>Date Effet</th>
+                        <th>Date Calcul</th>
+                        <th>Période Courue</th>
+                        <th>Contribution Encaissée</th>
+                        <th>Chargement Acquisition</th>
+                        <th>Contribution Nette</th>
+                        <th>EC avec PB</th>
+                        <th>EC sans PB</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for (row of data(); track (row.numQuittance + '_' + (row.dateCalcul?.getTime() ?? 0) + '_' +
+                    $index); let index = $index) {
+                    <tr>
+                        <td>{{ isSpecial(row) ? '' : (row.numQuittance || '') }}</td>
+                        <td class="print-table__center">{{ isSpecial(row) ? '' : formatDate(row.dateEffet) }}</td>
+                        <td class="print-table__center">{{ formatDate(row.dateCalcul) }}</td>
+                        <td class="print-table__center">{{ row.periodeCourue ?? '' }}</td>
+                        <td class="print-table__num">{{ isSpecial(row) ? '' : formatNum(row.contribution) }}</td>
+                        <td class="print-table__num">{{ isSpecial(row) ? '' : formatNum(row.chargementAcquisition) }}
+                        </td>
+                        <td class="print-table__num">{{ isSpecial(row) ? '' : formatNum(row.contributionNette) }}</td>
+                        <td class="print-table__num">{{ formatNum(row.ecAvecPB ?? null) }}</td>
+                        <td class="print-table__num">{{ formatNum(row.ecSansPB ?? null) }}</td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+             }
+              @if (isOnlyApi()) {
+                <table class="print-table">
+                    <thead>
+                    <tr>
+                         @for (column of epargneColumns; track column) {
+                            <th>{{ column }}</th>
+                        }
+                    </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of  epargneResult()?.calculs; track (row.numeroQuittance + '_' + (row.dateCalcul ?? 0) + '_' +   
+                        $index); let index = $index) {
+                            <tr>
+                                <td>{{row.numeroQuittance }}</td>
+                            
+                                <td class="print-table__center">{{ row.dateCalcul }}</td>
+                                
+                                <td class="print-table__num">{{ row.contributionEpargne }}</td>
+                                <td class="print-table__num">{{ row.contributionNette }}</td>
+                                <td class="print-table__center">{{ row.periodeCourue  }}</td>
+                                <td class="print-table__num">{{ row.chargementAcquisition }}</td>
+                                
+                                <td class="print-table__num">{{ row.ecAvecPb }}</td>
+                                <td class="print-table__num">{{ row.ecSansPb }}</td>
+                            
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+             }
+            </div>
+
+        </div>
+    </div>
+    }

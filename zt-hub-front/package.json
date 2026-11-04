@@ -1,0 +1,35 @@
+{
+  "name": "zt-hub",
+  "version": "1.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --host 0.0.0.0 --ssl true --port 4300 --proxy-config proxy.conf.json",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^21.2.13",
+    "@angular/common": "^21.2.13",
+    "@angular/compiler": "^21.2.13",
+    "@angular/core": "^21.2.13",
+    "@angular/forms": "^21.2.13",
+    "@angular/platform-browser": "^21.2.13",
+    "@angular/router": "^21.2.13",
+    "@primeng/themes": "^21.0.4",
+    "html5-qrcode": "^2.3.8",
+    "primeicons": "^7.0.0",
+    "primeng": "^21.1.7",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "xlsx": "^0.18.5",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.11",
+    "@angular/cli": "^21.2.11",
+    "@angular/compiler-cli": "^21.2.13",
+    "typescript": "^5.9.2"
+  }
+}

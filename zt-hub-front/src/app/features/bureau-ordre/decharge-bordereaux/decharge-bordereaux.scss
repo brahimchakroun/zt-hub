@@ -1,0 +1,463 @@
+@use '../../../core/styles/design-tokens' as *;
+
+// =========================================================================
+// Page : Décharge bordereaux — Mobile-First
+// =========================================================================
+.decharge {
+  min-height: calc(100vh - 120px);
+  display: grid;
+  place-items: start center;
+  padding: $space-4 $space-4 $space-6;
+  width: 100%;
+
+  @include bp(md) {
+    padding-block: $space-6;
+    place-items: center;
+  }
+}
+
+.decharge__card {
+  @include card-surface;
+  width: 100%;
+  max-width: 540px;
+  padding: $space-5 $space-4;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  @include bp(sm) {
+    max-width: 520px;
+    padding: $space-6 $space-6;
+    border-radius: $radius-xl;
+  }
+
+  // Liseré doré en haut (branding Zitouna)
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, $color-accent-500, var(--primary-500));
+  }
+}
+
+// =========================================================================
+// Panel header (scan / confirm / success / error)
+// =========================================================================
+.panel-header {
+  text-align: center;
+  margin-bottom: $space-5;
+
+  @include bp(sm) { margin-bottom: $space-6; }
+
+  &__icon {
+    width: 56px;
+    height: 56px;
+    margin-inline: auto $space-1;
+    border-radius: $radius-lg;
+    display: grid;
+    place-items: center;
+
+    color: var(--primary-500);
+    margin-bottom: $space-4;
+    box-shadow: inset 0 0 0 1px var(--primary-400);
+
+    i { font-size: 1.6rem; line-height: 1; }
+
+    &--info {
+      background: $color-info-bg;
+      color: $color-info;
+      box-shadow: inset 0 0 0 1px $color-info-border;
+    }
+  }
+
+  &__title {
+    margin: 0 0 $space-2;
+    font-size: $fs-lg;
+    line-height: $lh-tight;
+    color: $color-text-900;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+
+    @include bp(sm) { font-size: $fs-xl; }
+  }
+
+  &__subtitle {
+    margin: 0;
+    color: $color-text-500;
+    font-size: $fs-sm;
+    line-height: $lh-snug;
+  }
+}
+
+// =========================================================================
+// QR scanner
+// =========================================================================
+.qr-wrap {
+  position: relative;
+  margin-bottom: $space-5;
+
+  &--loading .qr-reader { visibility: hidden; }
+}
+
+.qr-reader {
+  width: 100%;
+  max-width: 340px;
+  margin-inline: auto;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  border: 2px solid $color-surface-200;
+  background: $color-surface-100;
+  aspect-ratio: 1 / 1;
+
+  // Override html5-qrcode inline styling defaults (trop agressifs sur mobile)
+  :deep(#qr-reader__dashboard_section_csr > span,
+        #qr-reader__dashboard_section_csr > div) {
+    display: none !important;
+  }
+
+  &--hidden { visibility: hidden; }
+}
+
+.qr-skeleton {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  gap: $space-4;
+
+  .skeleton--frame {
+    width: 100%;
+    max-width: 340px;
+    aspect-ratio: 1 / 1;
+    margin-inline: auto;
+  }
+  .skeleton--hint {
+    width: 60%;
+    height: 12px;
+  }
+}
+
+// =========================================================================
+// Divider + saisie manuelle
+// =========================================================================
+.divider {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  color: $color-text-300;
+  font-size: $fs-xs;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-block: $space-4 $space-4;
+
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: $color-surface-200;
+  }
+}
+
+.manual {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+
+  &__label {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    color: $color-text-500;
+    font-size: $fs-sm;
+    font-weight: 500;
+
+    i { color: var(--primary-500); font-size: 0.9rem; }
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+
+    @include bp(sm) {
+      flex-direction: row;
+      gap: $space-2;
+    }
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.8rem $space-3;
+    border: 1.5px solid $color-surface-200;
+    border-radius: $radius-md;
+    background: $color-surface-50;
+    font-size: $fs-base;
+    font-family: inherit;
+    color: $color-text-900;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+
+    &::placeholder { color: $color-text-300; }
+
+    &:hover { border-color: var(--primary-500); }
+    &:focus {
+      @include focus-ring(var(--primary-500), 0.2);
+      background: $color-surface-0;
+    }
+  }
+
+  // Bouton PrimeNG prend 100% en mobile, taille naturelle en desktop
+  &__btn :deep(button),
+  & :deep(.p-button) {
+    width: 100%;
+
+    @include bp(sm) { width: auto; }
+  }
+}
+
+.sr-only { @include visually-hidden; }
+
+// =========================================================================
+// Summary box (confirm + success)
+// =========================================================================
+.summary {
+  background: $color-surface-50;
+  border: 1px solid $color-surface-200;
+  border-radius: $radius-lg;
+  padding: $space-4;
+  margin: 0 0 $space-5;
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+
+  &--success {
+    background: $color-success-bg;
+    border-color: $color-success-border;
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+
+    @include bp(sm) {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: $space-4;
+    }
+
+    dt {
+      font-size: $fs-xs;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: $color-text-400;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    dd {
+      margin: 0;
+      color: $color-text-900;
+      font-weight: 600;
+      text-align: right;
+      word-break: break-word;
+
+      @include bp-max(sm) { text-align: left; }
+    }
+  }
+
+  &__row--heading dd {
+    font-size: $fs-lg;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: $color-text-900;
+  }
+
+  &__row--raw dd { font-weight: 400; color: $color-text-500; }
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-1 $space-3;
+  border-radius: $radius-full;
+  font-size: $fs-xs;
+  font-weight: 600;
+  line-height: 1.4;
+
+  &--success {
+    background: $color-success-bg;
+    color: $color-success;
+    border: 1px solid $color-success-border;
+  }
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95em;
+  padding: 0.1rem 0.4rem;
+  background: rgba($color-primary-500, 0.07);
+  border-radius: $radius-sm;
+  &--sm { font-size: 0.78em; }
+}
+
+.raw {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: $fs-xs;
+  background: $color-surface-0;
+  padding: $space-2 $space-3;
+  border: 1px dashed $color-surface-200;
+  border-radius: $radius-sm;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+// =========================================================================
+// Actions (buttons)
+// =========================================================================
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+
+  @include bp(sm) {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  &--split {
+    @include bp(sm) {
+      justify-content: space-between;
+    }
+
+    .actions__btn--primary {
+      @include bp(sm) { margin-left: auto; }
+    }
+  }
+
+  &__btn {
+    width: 100%;
+    @include bp(sm) { width: auto; min-width: 160px; }
+
+    :deep(button) { width: 100%; padding-block: 0.72rem; font-weight: 600; border-radius: $radius-md; }
+
+    &--primary :deep(button) {
+      background: var(--primary-500);
+      border-color: var(--primary-500);
+      box-shadow: 0 6px 16px rgba(var(--primary-500), 0.28);
+      transition: transform .1s ease, background .15s ease, box-shadow .15s ease;
+
+      &:not(:disabled):hover {
+        background: var(--primary-500);
+        border-color: var(--primary-500);
+      }
+      &:not(:disabled):active { transform: translateY(1px); box-shadow: 0 2px 8px rgba($color-primary-500, 0.25); }
+      &:disabled { opacity: .6; cursor: not-allowed; }
+    }
+  }
+}
+
+// =========================================================================
+// Loading (RPA step)
+// =========================================================================
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: $space-3;
+  padding: $space-5 $space-3;
+
+  &__spinner {
+    margin-bottom: $space-2;
+    :deep(.p-progress-spinner-svg circle) {
+      stroke: $color-primary-500;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: $fs-md;
+    font-weight: 700;
+    color: $color-text-900;
+  }
+
+  &__text {
+    margin: 0;
+    color: $color-text-500;
+    font-size: $fs-sm;
+  }
+
+  &__progress {
+    width: 100%;
+    max-width: 240px;
+    height: 4px;
+    background: $color-surface-200;
+    border-radius: $radius-full;
+    overflow: hidden;
+    margin-top: $space-3;
+  }
+
+  &__bar {
+    display: block;
+    height: 100%;
+    width: 40%;
+    background: linear-gradient(90deg, $color-primary-500, $color-accent-500);
+    border-radius: inherit;
+    animation: loading-slide 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes loading-slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+// =========================================================================
+// Result (success / error)
+// =========================================================================
+.result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  &__icon {
+    width: 72px;
+    height: 72px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    margin: $space-2 0 $space-4;
+
+    i { font-size: 2.4rem; }
+
+    &--success {
+      background: $color-success-bg;
+      color: $color-success;
+      box-shadow: 0 0 0 6px rgba($color-success, 0.1);
+    }
+    &--error {
+      background: $color-danger-bg;
+      color: $color-danger;
+      box-shadow: 0 0 0 6px rgba($color-danger, 0.1);
+    }
+  }
+}
+
+.error-callout {
+  width: 100%;
+  margin: $space-3 0 $space-5;
+  background: $color-danger-bg;
+  border: 1px solid $color-danger-border;
+  color: #7f1d1d;
+  padding: $space-3 $space-4;
+  border-radius: $radius-md;
+  text-align: left;
+
+  p { margin: 0; font-size: $fs-sm; line-height: $lh-snug; }
+}

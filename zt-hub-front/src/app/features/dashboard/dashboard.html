@@ -1,0 +1,28 @@
+<div class="dashboard">
+  <h1>Dashboard</h1>
+  <p class="lead">Bienvenue sur Zitouna Takaful Hub.</p>
+  <div class="cards">
+    @for (c of cards; track c.title) {
+      <p-card styleClass="stat-card">
+        <div class="stat">
+          <div class="stat__icon" [style.background]="c.color + '18'" [style.color]="c.color">
+            <i [class]="c.icon"></i>
+          </div>
+          <div>
+            <div class="stat__value">{{ c.value }}</div>
+            <div class="stat__label">{{ c.title }}</div>
+          </div>
+        </div>
+      </p-card>
+    }
+  </div>
+  <p-card styleClass="mt-4">
+    <h3>Prochaines étapes</h3>
+    <ul>
+      <li>*</li>
+      <li>*</li>
+      <li>*</li>
+      <li>*</li>
+    </ul>
+  </p-card>
+</div>

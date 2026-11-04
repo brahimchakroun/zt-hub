@@ -1,0 +1,222 @@
+<div class="admin-page">
+
+  <p-toast position="top-right" [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0', top: '0' } }" />
+  <p-confirmDialog />
+
+  <header class="page-header">
+    <div class="page-header__inner">
+      <div>
+        <h1 class="page-header__title">Rôles & accès</h1>
+        <p class="page-header__subtitle">Créez des rôles et configurez les pages qu'ils peuvent consulter.</p>
+      </div>
+      <div class="page-header__actions">
+        <div class="search-box">
+          <i class="pi pi-search search-box__icon"></i>
+          <input
+            pInputText
+            type="search"
+            [ngModel]="query()"
+            (ngModelChange)="query.set($event)"
+            placeholder="Rechercher un rôle…"
+            class="search-box__input"
+          />
+        </div>
+        <p-button
+          label="Nouveau rôle"
+          icon="pi pi-plus"
+          styleClass="btn-primary custom"
+          (click)="openAdd()"
+          ariaLabel="Ajouter un nouveau rôle"
+        ></p-button>
+      </div>
+    </div>
+  </header>
+
+  <section class="role-grid">
+    @if (filtered().length === 0) {
+      <div class="empty card">
+        <i class="pi pi-id-card empty__icon"></i>
+        <p>Aucun rôle trouvé.</p>
+      </div>
+    } @else {
+      @for (r of filtered(); track r.id) {
+        <article class="role-card card" [attr.aria-label]="'Rôle ' + r.name">
+
+          <header class="role-card__header">
+            <div class="role-card__title-wrap">
+              <h3 class="role-card__title">{{ r.name }}</h3>
+              <span class="role-card__code">{{ r.code }}</span>
+            </div>
+            <div class="role-card__count">
+              <i class="pi pi-users" aria-hidden="true"></i>
+              {{ userCountPerRole().get(r.code) ?? 0 }} utilisateur(s)
+            </div>
+          </header>
+
+          @if (r.description) {
+            <p class="role-card__desc">{{ r.description }}</p>
+          } @else {
+            <p class="role-card__desc role-card__desc--muted">Aucune description.</p>
+          }
+
+          <div class="role-card__access">
+            <div class="role-card__access-header">
+              <span class="role-card__access-title">Pages autorisées</span>
+              <span class="badge badge--success">{{ r.pageAccess.length }}</span>
+            </div>
+
+            <div class="role-card__pages">
+              @if (r.pageAccess.length === 0) {
+                <span class="muted">Aucune page autorisée</span>
+              } @else {
+                @for (grp of pagesGrouped(); track grp.group) {
+                  @let filteredPages = grp.pages.filter(p => r.pageAccess.includes(p.code));
+                  @if (filteredPages.length > 0) {
+                    <div class="access-group">
+                      <span class="access-group__label">{{ grp.group }}</span>
+                      <div class="access-group__chips">
+                        @for (p of filteredPages; track p.code) {
+                          <span class="access-chip access-chip--ok">
+                            <i class="pi pi-check" aria-hidden="true"></i> {{ p.label }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  }
+                }
+              }
+            </div>
+          </div>
+
+          <footer class="role-card__footer">
+            <p-button
+              type="button"
+              styleClass="manual__btn custom"
+              (click)="onDelete(r)"
+              icon="pi pi-trash"
+              label="Supprimer"
+              ariaLabel="Supprimer le rôle"
+            ></p-button>
+             
+            <p-button
+              type="button"
+              styleClass="btn-primary custom"
+              (click)="openEdit(r)"
+              icon="pi pi-pencil"
+              label="Modifier"
+              ariaLabel="Modifier le rôle"
+            ></p-button>
+          </footer>
+        </article>
+      }
+    }
+  </section>
+
+  <!-- Add / Edit -->
+  <p-dialog
+    [modal]="true"
+    [visible]="showDialog()"
+    [style]="{ width: '94%', maxWidth: 780 }"
+    [breakpoints]="{ '920px': '94vw' }"
+    [contentStyle]="{ padding: 0 }"
+    (onHide)="onHideDialog()"
+    [header]="mode() === 'add' ? 'Nouveau rôle' : 'Modifier le rôle'"
+    [dismissableMask]="true"
+  >
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="role-form" novalidate>
+      <div class="role-form__grid">
+        <div class="field field--sm">
+          <label class="field__label">Code * (majuscules, underscore autorisé)</label>
+          <input pInputText formControlName="code" class="field__input" placeholder="EX: AUDITEUR" />
+          @if (form.controls.code.touched && form.controls.code.invalid) {
+            <small class="field__error">2 caractères minimum, lettres/chiffres/_ uniquement.</small>
+          }
+        </div>
+        <div class="field field--sm">
+          <label class="field__label">Nom affiché *</label>
+          <input pInputText formControlName="name" class="field__input" placeholder="Auditeur interne" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <small class="field__error">Champ requis.</small>
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label">Description</label>
+        <textarea
+          rows="2"
+          formControlName="description"
+          class="field__input field__input--ta"
+          placeholder="Fonction du rôle, périmètre...">
+        </textarea>
+      </div>
+
+      <div class="access-editor">
+        <div class="access-editor__top u-between">
+          <div>
+            <span class="access-editor__title">Pages autorisées</span>
+            <small class="u-text-muted"> — cochez toutes les sections accessibles à ce rôle.</small>
+          </div>
+          <div class="u-row-wrap">
+            <p-button
+              type="button"
+              severity="secondary"
+              styleClass="btn-ghost"
+              size="small"
+              label="Tout cocher"
+              icon="pi pi-check-square"
+              (click)="selectAllPages()"
+            ></p-button>
+            <p-button
+              type="button"
+              severity="secondary"
+              styleClass="btn-ghost"
+              size="small"
+              label="Tout décocher"
+              icon="pi pi-times"
+              (click)="clearPages()"
+            ></p-button>
+          </div>
+        </div>
+
+        <div class="access-editor__count" role="status">
+          {{ (form.controls.pageAccess.value ?? []).length }} / {{ pageCatalog.length  || 0 }} pages sélectionnées.
+        </div>
+
+        <div class="access-editor__groups">
+          @for (grp of pagesGrouped(); track grp.group) {
+            <div class="access-editor__group">
+              <div class="access-editor__group-header">
+                <span class="access-editor__group-name">{{ grp.group }}</span>
+              </div>
+              <div class="access-editor__grid">
+                @for (p of grp.pages; track p.code) {
+                  <button
+                    type="button"
+                    class="access-toggle"
+                    [class.access-toggle--on]="hasPage(p.code)"
+                    (click)="togglePage(p.code, $event)"
+                    [attr.aria-pressed]="hasPage(p.code)"
+                  >
+                    <i class="pi" [class.pi-check]="hasPage(p.code)" [class.pi-circle]="!hasPage(p.code)" aria-hidden="true"></i>
+                    <span class="access-toggle__label">{{ p.label }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (form.controls.pageAccess.touched && form.controls.pageAccess.errors?.['minlength']) {
+          <small class="field__error">Sélectionnez au moins une page.</small>
+        }
+      </div>
+
+      <footer class="dialog-footer">
+        <p-button type="button" severity="secondary" label="Annuler" (click)="onHideDialog()" styleClass="btn-ghost"></p-button>
+        <p-button type="submit" label="Enregistrer" icon="pi pi-check" [loading]="saving()" styleClass="btn-primary"></p-button>
+      </footer>
+    </form>
+  </p-dialog>
+
+</div>

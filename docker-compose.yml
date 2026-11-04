@@ -1,0 +1,50 @@
+services:
+  api:
+    build: ./zt-hub-api
+    restart: unless-stopped
+    depends_on: [db]
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE}
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    networks: [proxy, internal]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-api.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-api.entrypoints=websecure
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-api.tls.certresolver=le
+      - traefik.http.services.${COMPOSE_PROJECT_NAME}-api.loadbalancer.server.port=8080
+
+  front:
+    build: ./zt-hub-front
+    restart: unless-stopped
+    networks: [proxy]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-front.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-front.entrypoints=websecure
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-front.tls.certresolver=le
+      - traefik.http.services.${COMPOSE_PROJECT_NAME}-front.loadbalancer.server.port=80
+
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db-data:/var/lib/mysql
+    networks: [internal]
+
+volumes:
+  db-data:
+
+networks:
+  proxy:
+    external: true
+  internal:

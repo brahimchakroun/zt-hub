@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        body { 
+            font-family: Helvetica, Arial, sans-serif; 
+            font-size: 10pt; 
+            color: #333;
+            margin: 20px;
+        }
+
+        /* En-tête : Tableau invisible pour positionner à droite */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+            margin-bottom: 20px;
+        }
+        .header-table td {
+            border: none;
+            padding: 0;
+            vertical-align: top;
+        }
+        /* La colonne de gauche pousse le contenu vers la droite */
+        .col-left {
+            width: 55%; 
+        }
+        /* La colonne de droite contient le logo et l'entête alignés à droite */
+        .col-right {
+            width: 45%;
+            text-align: right;
+        }
+        .logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .entete-block {
+            white-space: pre-line;
+            text-align: right; /* Aligne l'adresse à droite */
+            font-size: 10pt;
+            line-height: 1.4;
+            font-weight: 300;
+        }
+
+        /* Objet du contrat */
+        .objet-section {
+            margin: 25px 0;
+            font-size: 11pt;
+            font-weight: bold;
+        }
+
+        /* Tableau principal */
+        table.data-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 5px; 
+        }
+        table.data-table th, table.data-table td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: center; 
+        }
+        table.data-table th { 
+            background-color: #2980b9; 
+            color: white; 
+            text-align: center;
+        }
+        .center { text-align: center; }
+        .right { text-align: right; }
+    </style>
+</head>
+<body>
+
+    <!-- SECTION EN-TÊTE (Logo + Entête alignés à droite) -->
+    <table class="header-table">
+        <tr>
+            <td class="col-left"> <img src="classpath:/templates/logo.jpg" class="logo" alt="Logo" /></td> 
+            <td class="col-right">
+                <div class="entete-block" th:text="${entete}"></div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- OBJET DU CONTRAT -->
+    <div class="objet-section">
+    
+            <b>Objet : </b>
+            Votre contrat N° <b><span th:text="${numeroPolice}"></span></b><br/><br/>
+            <span th:text="${title}"></span>,<br/><br/>
+            Nous avons le plaisir de vous communiquer la situation de votre contrat en objet, qui sauf erreur ou omission de notre part, se présente comme suit:
+   </div>
+
+    <!-- TABLEAU DES DONNÉES -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date d'encaissement</th>
+                <th>Contribution Encaissée</th>
+                <th>Contribution Prévoyance</th>
+                <th>Contribution Épargne</th>
+                <th>Taux de PB</th>
+                <th>Épargne constituée</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="row : ${rows}">
+                <td class="center" th:text="${row.date_encaissement}"></td>
+                <td class="right" th:text="${row.contribution_encaisse}"></td>
+                <td class="right" th:text="${row.contribution_prevoyance}"></td>
+                <td class="right" th:text="${row.contribution_epargne}"></td>
+                
+                <!-- Fusion des cellules (Rowspan) -->
+                <td th:if="${row.showTaux}" th:rowspan="${row.rowspan}" class="center" style="vertical-align: middle; background-color: #f8f9fa;" th:text="${row.taux_pb}"></td>
+                
+                <td class="right" th:text="${row.ec_avec_pb}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>

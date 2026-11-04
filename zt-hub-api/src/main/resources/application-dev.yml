@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: zt-hub-api
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+  datasource:
+    primary:
+      url: jdbc:sqlserver://srv-sig-sqlppd.takaful.local\mssqlppd;databaseName=Test;integratedSecurity=true;sendStringParametersAsUnicode=false;trustServerCertificate=true;encrypt=false
+      driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    proassure:
+      url: jdbc:sqlserver://srv-sig-sqlppd.takaful.local\mssqlppd;databaseName=DB_ZITOUNA2309;integratedSecurity=true;sendStringParametersAsUnicode=false;trustServerCertificate=true;encrypt=false
+      driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver 
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: filesystem:sql
+  mail:
+    host: smtp.office365.com
+    port: 587
+    username: mouna.mokni@zitounatakaful.com
+    password: Am****      # ${MAIL_PASSWORD}  utilise une variable d'environnement
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+
+
+server:
+  port: 8080
+  ssl:
+    enabled: false
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:gFW8DAqyaiYtnBiI3YXvC43tTZgaI6wRAUuEEn9tKpALd8vpH25Pr5HRomcx0AK7HNoLn6Z3bOfHz0cUg+DYng==}
+    access-expiration-seconds: ${JWT_ACCESS_EXPIRATION_SECONDS:3600}
+    refresh-expiration-seconds: ${JWT_REFRESH_EXPIRATION_SECONDS:604800}
+  cors:
+    allowed-origins:
+      - ${CORS_ORIGIN_1:https://localhost:4300}
+      - ${CORS_ORIGIN_2:https://192.168.1.*:*}
+      - ${CORS_ORIGIN_3:https://192.168.200.*:*}
+  mail:
+    from: mouna.mokni@zitounatakaful.com
+    from-name: Zitouna Takaful
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+info:
+  app:
+    name: zt-hub-api
+    description: Template de microservice Spring Boot pret pour la production
+    version: 1.0.0
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    root: DEBUG
+    com.zt.hub: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

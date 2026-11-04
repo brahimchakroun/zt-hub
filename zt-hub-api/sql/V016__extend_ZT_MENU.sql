@@ -1,0 +1,1 @@
+ALTER TABLE ZT_MENU ADD icon varchar(64) NULL;
